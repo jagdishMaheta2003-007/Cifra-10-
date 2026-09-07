@@ -20,7 +20,7 @@ Deploy for free on Streamlit Community Cloud:
 
 import numpy as np
 import streamlit as st
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 import tensorflow as tf
 
 CLASS_NAMES = [
@@ -37,7 +37,6 @@ def load_model():
 
 
 def preprocess(image: Image.Image) -> np.ndarray:
-    image = image.convert("RGB").resize((32, 32))
     arr = np.array(image).astype("float32") / 255.0
     return np.expand_dims(arr, axis=0)
 
@@ -59,18 +58,31 @@ model = load_model()
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    image = Image.open(uploaded_file)
+    try:
+        # Open and immediately normalize to plain RGB. This avoids crashes
+        # on images with alpha channels (RGBA), palette mode (P), or CMYK
+        # JPEGs, all of which can break st.image / numpy conversion.
+        image = Image.open(uploaded_file)
+        image = image.convert("RGB")
+    except UnidentifiedImageError:
+        st.error("That file doesn't look like a valid image. Please upload a JPG or PNG.")
+        st.stop()
+    except Exception as e:
+        st.error(f"Couldn't read that image: {e}")
+        st.stop()
+
     st.image(image, caption="Uploaded image", use_container_width=True)
 
     with st.spinner("Predicting..."):
-        input_arr = preprocess(image)
+        resized = image.resize((32, 32))
+        input_arr = preprocess(resized)
         predictions = model.predict(input_arr)[0]
 
     top_idx = int(np.argmax(predictions))
     top_class = CLASS_NAMES[top_idx]
     top_conf = float(predictions[top_idx]) * 100
 
-    st.success(f"**Prediction: {top_class.upper()}**  ({top_conf:.1f}% confidence)")
+    st.success(f"**Prediction: {top_class.upper()}** ({top_conf:.1f}% confidence)")
 
     st.subheader("Confidence for all classes")
     sorted_pairs = sorted(zip(CLASS_NAMES, predictions), key=lambda p: p[1], reverse=True)
