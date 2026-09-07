@@ -63,7 +63,7 @@ if uploaded_file is not None:
         # on images with alpha channels (RGBA), palette mode (P), or CMYK
         # JPEGs, all of which can break st.image / numpy conversion.
         image = Image.open(uploaded_file)
-        image = image.convert("RGB")
+        image = image.convert("RGB") Image.open(...)
     except UnidentifiedImageError:
         st.error("That file doesn't look like a valid image. Please upload a JPG or PNG.")
         st.stop()
