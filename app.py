@@ -1,4 +1,3 @@
-```python
 import numpy as np
 import streamlit as st
 from PIL import Image, UnidentifiedImageError
@@ -149,4 +148,3 @@ st.divider()
 st.caption(
     "Built with TensorFlow/Keras + Streamlit · CIFAR-10 CNN classifier"
 )
-```
