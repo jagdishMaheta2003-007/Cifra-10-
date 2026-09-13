@@ -7,6 +7,7 @@ CLASS_NAMES = [
     "airplane", "automobile", "bird", "cat", "deer",
     "dog", "frog", "horse", "ship", "truck",
 ]
+CLASS_EMOJIS = { "airplane": "✈️", "automobile": "🚗", "bird": "🐦", "cat": "🐱", "deer": "🦌", "dog": "🐕", "frog": "🐸", "horse": "🐴", "ship": "🚢", "truck": "🚛", }
 
 st.set_page_config(
     page_title="CIFAR-10 Image Classifier",
